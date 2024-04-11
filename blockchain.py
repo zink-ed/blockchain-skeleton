@@ -25,12 +25,6 @@ class Blockchain:
         self.chain = []
         self.current_transactions = []
 
-        # Create first block
-        first_block = self.create_block(1, [], 0, "0")
-        while not self.check_proof(first_block):
-            first_block.proof += 1
-        self.chain.append(first_block)
-
     def create_block(self, index, transactions, proof, previous_hash):
         return Block(index, transactions, proof, previous_hash)
 
