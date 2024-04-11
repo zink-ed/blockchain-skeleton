@@ -24,7 +24,3 @@ Easy:
 Medium:
 - Add digital signatures (use another program to generate keys, and hard code in everyone's public keys)
 - Check that signatures are valid when checking the validity of a block
-
-Hard (the officers are working on this):
-- Add communication between nodes
-- Implement a consensus algorithm
