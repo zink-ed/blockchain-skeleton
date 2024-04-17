@@ -51,7 +51,7 @@ class Blockchain:
         if self.check_proof(block):
             self.chain.append(block)
 
-    def hash(self, block):
+    def hash_block(self, block):
         return hashlib.sha256(str(block).encode()).hexdigest()
 
     def check_proof(self, block):
