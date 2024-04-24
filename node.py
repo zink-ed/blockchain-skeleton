@@ -2,15 +2,9 @@ from flask import Flask, jsonify, request
 from blockchain import Blockchain
 import dataclasses
 import requests
+import argparse
 
 app = Flask(__name__)
-# Give yourself a name
-address = ""
-# Make this unique for each node you are running on your computer
-port_num = 5000
-difficulty_number = 2
-mining_reward = 10
-local_blockchain = Blockchain(address, difficulty_number, mining_reward)
 
 
 @app.route("/chain", methods=["GET", "POST"])
@@ -105,4 +99,15 @@ def broadcast():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run a node in a blockchain network.")
+    parser.add_argument("-i", "--identifier", default="")
+    parser.add_argument("port", default="5000")
+
+    args = parser.parse_args()
+    identifier = args.identifier
+    port_num = args.port
+    difficulty_number = 2
+    mining_reward = 10
+    local_blockchain = Blockchain(identifier, difficulty_number, mining_reward)
+
     app.run(port=port_num)
