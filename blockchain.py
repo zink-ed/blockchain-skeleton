@@ -28,9 +28,14 @@ class Blockchain:
         self.current_transactions = []
         self.users = {'Cathleen': 100}
 
+        block = self.create_block(0, [], 0, 0)
+        while not self.check_proof(block):
+              block.proof += 1
+        self.add_block(block)
+
     def create_block(self, index, transactions, proof, previous_hash):
         timestamp = time.time() # current timestamp
-        return Block(index, copy.copy(transactions), proof, previous_hash)
+        return Block(index, copy.copy(transactions), proof, previous_hash, timestamp)
 
     def create_transaction(self, sender, recipient, amount):
         if self.users[sender] >= amount:
@@ -42,7 +47,7 @@ class Blockchain:
         return self.current_transactions
 
     def current_block(self):
-        return self.chain[-1]
+        return self.chain[len(self.chain) - 1]
 
     def add_transaction(self, sender, recipient, amount):
         self.current_transactions.append(Transaction(sender, recipient, amount))
@@ -61,14 +66,27 @@ class Blockchain:
         return hashlib.sha256(str(block).encode()).hexdigest()
 
     def check_proof(self, block):
-        
         # Check that the hash of the block ends in difficulty_number many zeros
-        return False
+        m = self.hash_block(block)
+        last_difficulty_characters = m[0:self.difficulty_number]
+        for c in last_difficulty_characters:
+            if not c == '0':
+                return False
+        return True
+
 
     def mine(self):
         # Give yourself a reward at the beginning of the transactions
         self.add_transaction("network", self.address, self.mining_reward)
+
         # Find the right value for proof
+        block = self.create_block(self.next_index(), self.get_transactions(), 0, self.hash_block(self.current_block()))
+        while not self.check_proof(block):
+              block.proof += 1
+
         # Add the block to the chain
+        self.add_block(block)
+
         # Clear your current transactions
+        self.current_transactions.clear()
         pass
