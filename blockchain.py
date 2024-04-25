@@ -28,11 +28,14 @@ class Blockchain:
         self.chain = []
         self.current_transactions = []
         self.users = ['http://127.0.0.1:5000']
+        self.client_list = {'network' : 10000, 'a' : 0, 'b' : 0}
 
-        block = self.create_block(1, [], 0, 0)
-        while not self.check_proof(block):
-              block.proof += 1
-        self.add_block(block)
+        genesis_block = self.create_block(1, [], 0, 0)
+        self.add_transaction('network', 'a', 100)
+        self.add_transaction('network', 'b', 100)
+        while not self.check_proof(genesis_block):
+              genesis_block.proof += 1
+        self.add_block(genesis_block)
 
     def create_block(self, index, transactions, proof, previous_hash):
         timestamp = time.time() # current timestamp
@@ -40,6 +43,12 @@ class Blockchain:
     
     def add_player(self, player):
         self.users.append(player)
+
+    def add_client(self, client_name):
+        self.client_list[client_name] = 0
+
+    def get_bal(self, client_name):
+        return self.client_list[client_name]
 
     def create_transaction(self, sender, recipient, amount):
         if self.users[sender] >= amount:
@@ -54,7 +63,9 @@ class Blockchain:
         return self.chain[len(self.chain) - 1]
 
     def add_transaction(self, sender, recipient, amount):
-        self.current_transactions.append(Transaction(sender, recipient, amount))
+        if sender in self.client_list and recipient in self.client_list:
+            if amount <= self.client_list[sender]:
+                self.current_transactions.append(Transaction(sender, recipient, amount))
 
     def next_index(self):
         return len(self.chain) + 1
