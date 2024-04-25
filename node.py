@@ -68,7 +68,7 @@ def new_transaction():
 @app.route("/network", methods=["GET", "POST"])
 def network():
     if request.method == "GET":
-        response = {"nodes": list(local_blockchain.players)}
+        response = {"nodes": list(local_blockchain.users)}
         return jsonify(response), 200
     else:
         value = request.get_json()
@@ -84,7 +84,7 @@ def network():
 @app.route("/broadcast", methods=["GET"])
 def broadcast():
     successful_broadcasts = []
-    for a in local_blockchain.players:
+    for a in local_blockchain.users:
         try:
             r = requests.post(
                 a + "/chain",

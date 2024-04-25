@@ -27,9 +27,9 @@ class Blockchain:
         self.mining_reward = mining_reward
         self.chain = []
         self.current_transactions = []
-        self.users = {'Cathleen': 100}
+        self.users = ['http://127.0.0.1:5000']
 
-        block = self.create_block(0, [], 0, 0)
+        block = self.create_block(1, [], 0, 0)
         while not self.check_proof(block):
               block.proof += 1
         self.add_block(block)
@@ -37,6 +37,9 @@ class Blockchain:
     def create_block(self, index, transactions, proof, previous_hash):
         timestamp = time.time() # current timestamp
         return Block(index, copy.copy(transactions), proof, previous_hash, timestamp)
+    
+    def add_player(self, player):
+        self.users.append(player)
 
     def create_transaction(self, sender, recipient, amount):
         if self.users[sender] >= amount:
@@ -93,10 +96,14 @@ class Blockchain:
         pass
 
     def validate_chain(self, chain):
-        # Check that the chain is valid
-        # The chain is an array of blocks
-        # You should check that the hashes chain together
-        # The proofs of work should be valid
+        if not self.check_proof(chain[0]):
+            return False
+        for i in range(1, len(chain)):
+            b = chain[i]
+            if not b.previous_hash == self.hash_block(chain[i - 1]):
+                return False
+            if not self.check_proof(chain[i]):
+                return False
         return True
 
     def receive_chain(self, chain_raw_json):
