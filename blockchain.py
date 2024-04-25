@@ -2,6 +2,7 @@ import hashlib
 import time
 from dataclasses import dataclass
 import copy
+from dacite import from_dict
 
 @dataclass
 class Transaction:
@@ -90,3 +91,17 @@ class Blockchain:
         # Clear your current transactions
         self.current_transactions.clear()
         pass
+
+    def validate_chain(self, chain):
+        # Check that the chain is valid
+        # The chain is an array of blocks
+        # You should check that the hashes chain together
+        # The proofs of work should be valid
+        return True
+
+    def receive_chain(self, chain_raw_json):
+        chain = [from_dict(Block, b) for b in chain_raw_json]
+        if self.validate_chain(chain) and len(chain) > self.get_length():
+            self.chain = chain
+            return True
+        return False
