@@ -66,6 +66,8 @@ class Blockchain:
         if sender in self.client_list and recipient in self.client_list:
             if amount <= self.client_list[sender]:
                 self.current_transactions.append(Transaction(sender, recipient, amount))
+        if self.transactions.len() == 8: #automatic mining
+            mine(self)
 
     def next_index(self):
         return len(self.chain) + 1
@@ -114,6 +116,8 @@ class Blockchain:
             if not b.previous_hash == self.hash_block(chain[i - 1]):
                 return False
             if not self.check_proof(chain[i]):
+                return False
+            if not self.transactions.len() == 8:
                 return False
         return True
 
