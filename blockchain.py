@@ -3,12 +3,14 @@ import time
 from dataclasses import dataclass
 import copy
 from dacite import from_dict
+import cryptography
 
 @dataclass
 class Transaction:
-    sender: str
-    recipient: str
+    sender: bytes
+    recipient: bytes
     amount: float
+    signature: bytes
 
 
 @dataclass
@@ -19,6 +21,11 @@ class Block:
     previous_hash: str
     timestamp: float # add timestamp field
 
+@dataclass
+class Player:
+    publicKey: bytes
+    balance: float
+
 
 class Blockchain:
     def __init__(self, address, difficulty_number, mining_reward):
@@ -28,8 +35,9 @@ class Blockchain:
         self.chain = []
         self.current_transactions = []
         self.users = ['http://127.0.0.1:5000']
-        self.client_list = {'network' : 10000, 'a' : 0, 'b' : 0}
 
+        self.client_list = {0 (bytes): 10000 (float) }
+        
         genesis_block = self.create_block(1, [], 0, 0)
         self.add_transaction('network', 'a', 100)
         self.add_transaction('network', 'b', 100)
@@ -44,11 +52,11 @@ class Blockchain:
     def add_player(self, player):
         self.users.append(player)
 
-    def add_client(self, client_name):
-        self.client_list[client_name] = 0
+    def add_client(self, client_pkey):
+        self.client_list[client_pkey] = 0
 
-    def get_bal(self, client_name):
-        return self.client_list[client_name]
+    def get_bal(self, client_pkey):
+        return self.client_list[client_pkey]
 
     def create_transaction(self, sender, recipient, amount):
         if self.users[sender] >= amount:
@@ -66,8 +74,8 @@ class Blockchain:
         if sender in self.client_list and recipient in self.client_list:
             if amount <= self.client_list[sender]:
                 self.current_transactions.append(Transaction(sender, recipient, amount))
-        if self.transactions.len() == 8: #automatic mining
-            mine(self)
+        if len(self.transactions) == 8: #automatic mining
+            self.mine()
 
     def next_index(self):
         return len(self.chain) + 1

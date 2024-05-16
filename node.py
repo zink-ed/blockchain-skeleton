@@ -3,6 +3,7 @@ from blockchain import Blockchain
 import dataclasses
 import requests
 import argparse
+import cryptography
 
 app = Flask(__name__)
 
@@ -51,12 +52,15 @@ def mine():
 @app.route("/transactions/new", methods=["POST"])
 def new_transaction():
     values = request.get_json()
-    required = ["sender", "recipient", "amount"]
+    required = ["sender", "recipient", "amount", "signature"]
     if not values or not all(k in values for k in required):
         return "Missing values", 400
 
+    #if validate signature, send transcation
+    try:
+        values["sender"].verify(values["signature"], values["sender"] + values["recipient"] + values["amounnt"],)
     local_blockchain.add_transaction(
-        values["sender"], values["recipient"], values["amount"]
+        values["sender"], values["recipient"], values["amount"], values["signature"]
     )
 
     response = {
@@ -101,7 +105,7 @@ def broadcast():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a node in a blockchain network.")
     parser.add_argument("-i", "--identifier", default="")
-    parser.add_argument("port", default="5000")
+    parser.add_argument("-p", "--port", default="5000")
 
     args = parser.parse_args()
     identifier = args.identifier
