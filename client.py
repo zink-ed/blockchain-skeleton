@@ -3,11 +3,40 @@ import sys
 import requests
 import json
 
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 
 os.environ["NO_PROXY"] = "127.0.0.1"
 # Change the following number to the port of the blockchain you want to interact with
 port_num = "5000"
 address = "http://127.0.0.1:" + port_num
+
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,
+)
+
+pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+
+f = open("private_key.txt", "a")
+f.write(str(pem))
+f.close()
+
+def signing(message):
+    signature = private_key.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
 
 if __name__ == "__main__":
     print("Input b to see the blockchain on the server.")
@@ -35,6 +64,7 @@ if __name__ == "__main__":
             sender = input("Input the sender: ")
             recipient = input("Input the recipient: ")
             amount = input("Input an amount: ")
+            signature = signing(sender + recipient + amount)
             try:
                 amount = float(amount)
                 payload = {"sender": sender, "recipient": recipient, "amount": amount}
