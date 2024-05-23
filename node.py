@@ -75,13 +75,21 @@ def new_transaction():
     #if validate signature, send transcation
     try:
         values["sender"].verify(values["signature"], values["sender"] + values["recipient"] + values["amounnt"],)
-    local_blockchain.add_transaction(
-        values["sender"], values["recipient"], values["amount"], values["signature"]
-    )
+        local_blockchain.add_transaction(
+            values["sender"], values["recipient"], values["amount"], values["signature"]
+        )
+        
+        response = {
+            "message": f"Transaction will be added to block {local_blockchain.next_index()}"
+        }
 
-    response = {
-        "message": f"Transaction will be added to block {local_blockchain.next_index()}"
-    }
+    finally:    
+        response = {
+            "message": "We failed to verify"
+        }
+
+
+
     return jsonify(response), 201
 
 
