@@ -18,14 +18,24 @@ private_key = rsa.generate_private_key(
     key_size=2048,
 )
 
-pem = private_key.private_bytes(
+private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption()
     )
 
-f = open("private_key.txt", "wb")
-f.write((pem))
+public_key = private_key.public_key()
+public_pem = public_key.public_bytes(
+   encoding=serialization.Encoding.PEM,
+   format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
+
+f = open("private_key.pem", "wb")
+f.write((private_pem))
+f.close()
+
+f = open("public_key.pem", "wb")
+f.write((public_pem))
 f.close()
 
 def signing(message):

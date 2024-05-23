@@ -12,8 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 app = Flask(__name__)
 
-def verifying(private_key, signature, message):
-    public_key = private_key.public_key()
+def verifying(public_key, signature, message):
     public_key.verify(
         signature,
         message,
