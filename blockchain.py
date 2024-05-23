@@ -70,7 +70,7 @@ class Blockchain:
     def current_block(self):
         return self.chain[len(self.chain) - 1]
 
-    def add_transaction(self, sender, recipient, amount):
+    def add_transaction(self, signature, sender, recipient, amount):
         if sender in self.client_list and recipient in self.client_list:
             if amount <= self.client_list[sender]:
                 self.current_transactions.append(Transaction(sender, recipient, amount))
