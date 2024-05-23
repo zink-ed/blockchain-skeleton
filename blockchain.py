@@ -40,7 +40,7 @@ class Blockchain:
         
         genesis_block = self.create_block(1, [], 0, 0)
         signature = 0
-        self.add_transaction('network', 'a', 100, signatue)
+        self.add_transaction('network', 'a', 100, signature)
         self.add_transaction('network', 'b', 100, signature)
         while not self.check_proof(genesis_block):
               genesis_block.proof += 1
