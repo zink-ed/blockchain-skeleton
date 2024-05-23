@@ -24,8 +24,8 @@ pem = private_key.private_bytes(
         encryption_algorithm=serialization.NoEncryption()
     )
 
-f = open("private_key.txt", "a")
-f.write(str(pem))
+f = open("private_key.txt", "wb")
+f.write((pem))
 f.close()
 
 def signing(message):
