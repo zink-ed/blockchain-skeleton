@@ -39,8 +39,9 @@ class Blockchain:
         self.client_list = {0 (bytes): 10000 (float) }
         
         genesis_block = self.create_block(1, [], 0, 0)
-        self.add_transaction('network', 'a', 100)
-        self.add_transaction('network', 'b', 100)
+        signature = 0
+        self.add_transaction('network', 'a', 100, signatue)
+        self.add_transaction('network', 'b', 100, signature)
         while not self.check_proof(genesis_block):
               genesis_block.proof += 1
         self.add_block(genesis_block)
@@ -70,7 +71,7 @@ class Blockchain:
     def current_block(self):
         return self.chain[len(self.chain) - 1]
 
-    def add_transaction(self, signature, sender, recipient, amount):
+    def add_transaction(self, sender, recipient, amount, signature):
         if sender in self.client_list and recipient in self.client_list:
             if amount <= self.client_list[sender]:
                 self.current_transactions.append(Transaction(sender, recipient, amount))
@@ -102,7 +103,7 @@ class Blockchain:
 
     def mine(self):
         # Give yourself a reward at the beginning of the transactions
-        self.add_transaction("network", self.address, self.mining_reward)
+        self.add_transaction("network", self.address, self.mining_reward, self.signature)
 
         # Find the right value for proof
         block = self.create_block(self.next_index(), self.get_transactions(), 0, self.hash_block(self.current_block()))
