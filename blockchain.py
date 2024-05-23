@@ -36,14 +36,14 @@ class Blockchain:
         self.current_transactions = []
         self.users = ['http://127.0.0.1:5000']
 
-        self.client_list = {0 (bytes): 10000 (float) }
+        self.client_list = {bytes(0):float(10000)}
         
         genesis_block = self.create_block(1, [], 0, 0)
         signature = 0
         self.add_transaction('network', 'a', 100, signature)
         self.add_transaction('network', 'b', 100, signature)
         while not self.check_proof(genesis_block):
-              genesis_block.proof += 1
+            genesis_block.proof += 1
         self.add_block(genesis_block)
 
     def create_block(self, index, transactions, proof, previous_hash):
@@ -59,11 +59,11 @@ class Blockchain:
     def get_bal(self, client_pkey):
         return self.client_list[client_pkey]
 
-    def create_transaction(self, sender, recipient, amount):
+    def create_transaction(self, sender, recipient, amount, signature=bytes(0)):
         if self.users[sender] >= amount:
             self.users[sender] -= amount
             self.users[recipient] += amount
-        return Transaction(sender, recipient, amount)
+        return Transaction(sender, recipient, amount, signature)
 
     def get_transactions(self):
         return self.current_transactions
@@ -71,11 +71,11 @@ class Blockchain:
     def current_block(self):
         return self.chain[len(self.chain) - 1]
 
-    def add_transaction(self, sender, recipient, amount, signature):
+    def add_transaction(self, sender, recipient, amount, signature=bytes(0)):
         if sender in self.client_list and recipient in self.client_list:
             if amount <= self.client_list[sender]:
-                self.current_transactions.append(Transaction(sender, recipient, amount))
-        if len(self.transactions) == 8: #automatic mining
+                self.current_transactions.append(Transaction(sender, recipient, amount, signature))
+        if len(self.current_transactions) == 8: #automatic mining
             self.mine()
 
     def next_index(self):
@@ -103,31 +103,32 @@ class Blockchain:
 
     def mine(self):
         # Give yourself a reward at the beginning of the transactions
-        self.add_transaction("network", self.address, self.mining_reward, self.signature)
+        self.add_transaction("network", self.address, self.mining_reward)
 
         # Find the right value for proof
         block = self.create_block(self.next_index(), self.get_transactions(), 0, self.hash_block(self.current_block()))
         while not self.check_proof(block):
-              block.proof += 1
+            block.proof += 1
 
         # Add the block to the chain
         self.add_block(block)
 
         # Clear your current transactions
         self.current_transactions.clear()
-        pass
 
     def validate_chain(self, chain):
         if not self.check_proof(chain[0]):
             return False
+        if len(chain) <= 8:
+            return False
+        
         for i in range(1, len(chain)):
             b = chain[i]
             if not b.previous_hash == self.hash_block(chain[i - 1]):
                 return False
             if not self.check_proof(chain[i]):
                 return False
-            if not self.transactions.len() == 8:
-                return False
+
         return True
 
     def receive_chain(self, chain_raw_json):
