@@ -8,11 +8,19 @@ import cryptography
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 # from cryptography.hazmat.primitives.asymmetric import rsa
-# from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 app = Flask(__name__)
 
-def verifying(public_key, signature, message):
+# Load the PEM file
+with open('public_key.pem', 'rb') as pem_file:
+    pem_data = pem_file.read()
+
+# Load the public key
+public_key = serialization.load_pem_public_key(pem_data, backend=default_backend())
+
+def verify(public_key, signature, message):
     public_key.verify(
         signature,
         message,
@@ -73,20 +81,20 @@ def new_transaction():
 
     #if validate signature, send transcation
     try:
-        values["sender"].verify(values["signature"], values["sender"] + values["recipient"] + values["amounnt"],)
-        local_blockchain.add_transaction(
-            values["sender"], values["recipient"], values["amount"], values["signature"]
-        )
-        
-        response = {
-            "message": f"Transaction will be added to block {local_blockchain.next_index()}"
-        }
+        values["sender"].verify(public_key, values["signature"], values["sender"] + values["recipient"] + values["amount"])
 
-    finally:    
+    except:
         response = {
             "message": "We failed to verify"
         }
 
+    finally:    
+        local_blockchain.add_transaction(
+            values["sender"], values["recipient"], values["amount"], values["signature"]
+        )
+        response = {
+            "message": f"Transaction will be added to block {local_blockchain.next_index()}"
+        }
 
 
     return jsonify(response), 201
